@@ -12,6 +12,7 @@ enum CustomErrors: LocalizedError {
 }
 
 class Service {
+    
     static let shared = Service()
     
     static var defaultCardImages: [UIImage] = [
@@ -22,10 +23,10 @@ class Service {
         UIImage(named: "5")!,
         UIImage(named: "6")!,
         UIImage(named: "7")!,
-        UIImage(named: "8")!,
+        UIImage(named: "8")!
     ]
     
-    public func getCardImages(completion: (Result<[Card], Error>) -> Void) {
+    func getCardImages(completion: (Result<[Card], Error>) -> Void) {
         var cards = [Card]()
         let cardImages = Service.defaultCardImages
         

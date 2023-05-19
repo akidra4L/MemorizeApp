@@ -17,8 +17,8 @@ class CardCell: UICollectionViewCell {
             guard let card = card else { return }
             frontImageView.image = card.image
             
-            frontImageView.layer.cornerRadius = 5
-            backImageView.layer.cornerRadius = 5
+            frontImageView.layer.cornerRadius = 5.0
+            backImageView.layer.cornerRadius = 5.0
             
             frontImageView.layer.masksToBounds = true
             backImageView.layer.masksToBounds = true
@@ -29,7 +29,6 @@ class CardCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
         setUI()
     }
     
@@ -38,28 +37,28 @@ class CardCell: UICollectionViewCell {
     }
     
     // MARK: - Outlets
-    private let frontImageView: UIImageView = {
+    let frontImageView: UIImageView = {
         let fiv = UIImageView()
         fiv.contentMode = .scaleAspectFit
         return fiv
     } ()
     
-    private let backImageView: UIImageView = {
+    let backImageView: UIImageView = {
         let fiv = UIImageView()
         fiv.contentMode = .scaleAspectFit
         return fiv
     } ()
     
     // MARK: - UI
-    private func setUI() {
+    func setUI() {
         [backImageView, frontImageView].forEach { self.addSubview($0) }
         
-        [backImageView, frontImageView].forEach { self.fillView($0) }
+        [backImageView, frontImageView].forEach { $0.fillView(self) }
     }
     
     func showCard(_ isShow: Bool, animated: Bool) {
         frontImageView.isHidden = false
-        backImageView.isHidden = true
+        backImageView.isHidden = false
         isShown = isShow
         if animated {
             if isShow {

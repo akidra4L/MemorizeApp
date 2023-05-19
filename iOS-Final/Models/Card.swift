@@ -8,27 +8,27 @@
 import UIKit
 
 class Card {
-    public var id: String
-    public var isShown: Bool
-    public var image: UIImage
+    var id: String
+    var isShown: Bool
+    var image: UIImage
     
-    public init(card: Card) {
+    init(card: Card) {
         self.id = card.id
         self.isShown = card.isShown
         self.image = card.image
     }
     
-    public init(image: UIImage) {
+    init(image: UIImage) {
         self.id = UUID().uuidString
         self.isShown = false
         self.image = image
     }
     
-    public func equals(_ card: Card) -> Bool {
+    func equals(_ card: Card) -> Bool {
         return card.id == id
     }
     
-    public func copy() -> Card {
+    func copy() -> Card {
         return Card(card: self)
     }
 }

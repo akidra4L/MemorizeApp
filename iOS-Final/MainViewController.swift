@@ -10,7 +10,7 @@ import UIKit
 class MainViewController: UIViewController {
     
     // MARK: - Properties
-    var count = 0
+    var counter = 0
     var game = MemoryGame()
     var cards = [Card]()
     let sectionInsets = UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
@@ -22,7 +22,7 @@ class MainViewController: UIViewController {
         return cv
     } ()
     
-    private let playButton: UIButton = {
+    private lazy var playButton: UIButton = {
         let btn = UIButton()
         btn.setTitle("Play", for: .normal)
         btn.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
@@ -35,27 +35,26 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setUI()
         setActions()
+        setUI()
         
-        collectionView.dataSource = self
-        collectionView.delegate = self
-        collectionView.isHidden = true
-        
-        game.delegate = self
+        self.collectionView.dataSource = self
+        self.collectionView.delegate = self
+        self.collectionView.isHidden = true
+        self.game.delegate = self
         
         collectionView.register(CardCell.self, forCellWithReuseIdentifier: CardCell.cellIdentifier)
         getCards()
     }
     
     // MARK: Methods
-    
     func getCards() {
         Service.shared.getCardImages { [weak self] result in
             switch result {
             case .success(let cards):
                 self?.cards = cards
                 self?.startGame()
+                
             case .failure(let failure):
                 print("\(failure)")
             }
@@ -73,22 +72,22 @@ class MainViewController: UIViewController {
     }
     
     // MARK: - Actions
-    private func setActions() {
+    func setActions() {
         self.playButton.addTarget(self, action: #selector(handlePlayButton), for: .touchUpInside)
     }
     
     @objc private func handlePlayButton() {
         collectionView.isHidden = false
-        count = 0
+        counter = 0
     }
     
     // MARK: - UI
-    private func setUI() {
+    func setUI() {
         self.view.backgroundColor = Colors.mainBackground
         [playButton, collectionView].forEach { self.view.addSubview($0) }
         
-        playButton.anchor(right: self.view.rightAnchor, bottom: self.view.bottomAnchor, left: self.view.leftAnchor, paddingRight: 64, paddingBottom: 100, paddingLeft: 64)
-        collectionView.anchor(top: self.view.topAnchor, right: self.view.rightAnchor, bottom: playButton.topAnchor, left: self.view.leftAnchor, paddingTop: 56, paddingBottom: 16)
+        playButton.anchor(right: self.view.rightAnchor, bottom: self.view.bottomAnchor, left: self.view.leftAnchor, paddingRight: 64, paddingBottom: 44, paddingLeft: 64)
+        collectionView.anchor(top: self.view.topAnchor, right: self.view.rightAnchor, bottom: playButton.topAnchor, left: self.view.leftAnchor, paddingBottom: 16)
     }
 }
 
@@ -118,7 +117,7 @@ extension MainViewController: MemoryGameProtocol {
     }
     
     func memoryGame(_ game: MemoryGame, showCards: [Card]) {
-        for card in cards {
+        for card in showCards {
             guard let index = game.getIndexForCard(card) else { continue }
             let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! CardCell
             cell.showCard(true, animated: true)
@@ -135,19 +134,17 @@ extension MainViewController: MemoryGameProtocol {
 }
 
 extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSource {
-    
+
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return cards.count
+        cards.count
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CardCell.cellIdentifier, for: indexPath) as? CardCell else {
-            return UICollectionViewCell()
-        }
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CardCell.cellIdentifier, for: indexPath) as! CardCell
         cell.showCard(false, animated: false)
         
         guard let card = game.getCardAtIndex(indexPath.item) else { return cell }
@@ -155,13 +152,13 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
         
         return cell
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as! CardCell
-        
+
         if cell.isShown { return }
         game.didSelectCard(cell.card)
-        
+
         collectionView.deselectItem(at: indexPath, animated: true)
     }
 }

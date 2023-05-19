@@ -23,20 +23,22 @@ class MemoryGame {
     var isPlaying: Bool = false
     
     // MARK: - Methods
-    public func startNewGame(cardsArray: [Card]) -> [Card] {
+    func startNewGame(cardsArray: [Card]) -> [Card] {
         cards = getShuffledCards(cards: cardsArray)
         isPlaying = true
+        
         delegate?.memoryGameDidStart(self)
+        
         return cards
     }
     
-    public func restartGame() {
+    func restartGame() {
         isPlaying = false
         cards.removeAll()
         cardsShown.removeAll()
     }
     
-    public func endGame() {
+    func endGame() {
         isPlaying = false
         delegate?.memoryGameDidEnd(self)
     }
@@ -56,6 +58,7 @@ class MemoryGame {
     
     func didSelectCard(_ card: Card?) {
         guard let card = card else { return }
+        
         delegate?.memoryGame(self, showCards: [card])
         
         if getUnmatchedCardsShown() {
@@ -65,6 +68,7 @@ class MemoryGame {
                 cardsShown.append(card)
             } else {
                 let secondCard = cardsShown.removeLast()
+                
                 let delay = DispatchTime.now() + 1.0
                 
                 DispatchQueue.main.asyncAfter(deadline: delay) {
@@ -85,11 +89,10 @@ class MemoryGame {
     }
     
     func getUnmatchedCard() -> Card? {
-        let unmatchedCard = cardsShown.last
-        return unmatchedCard
+        return cardsShown.last
     }
     
-    private func getShuffledCards(cards: [Card]) -> [Card] {
+    func getShuffledCards(cards: [Card]) -> [Card] {
         return cards.shuffled()
     }
 }
