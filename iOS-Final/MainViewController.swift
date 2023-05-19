@@ -80,6 +80,8 @@ class MainViewController: UIViewController {
     @objc private func handlePlayButton() {
         collectionView.isHidden = false
         counter = 0
+        
+        animateCardsFlying()
     }
     
     // MARK: - UI

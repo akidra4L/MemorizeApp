@@ -40,7 +40,7 @@ class CardCell: UICollectionViewCell {
     // MARK: - Outlets
     let frontImageView: UIImageView = {
         let fiv = UIImageView()
-        fiv.contentMode = .scaleAspectFit
+        fiv.contentMode = .scaleToFill
         return fiv
     } ()
     
