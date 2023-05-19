@@ -12,13 +12,13 @@ class MainViewController: UIViewController {
     // MARK: - Properties
     var counter = 0
     var game = MemoryGame()
-    var cards = [Card]()
+    var cards: [Card] = []
     let sectionInsets = UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
     
     // MARK: - Outlets
-    private let collectionView: UICollectionView = {
-        let cv = UICollectionView(frame: CGRect.zero, collectionViewLayout: UICollectionViewLayout.init())
-        cv.backgroundColor = .red
+    private var collectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        let cv = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
         return cv
     } ()
     
@@ -37,13 +37,14 @@ class MainViewController: UIViewController {
         
         setActions()
         setUI()
-        
-        self.collectionView.dataSource = self
-        self.collectionView.delegate = self
-        self.collectionView.isHidden = true
+
         self.game.delegate = self
         
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.isHidden = true
         collectionView.register(CardCell.self, forCellWithReuseIdentifier: CardCell.cellIdentifier)
+        
         getCards()
     }
     
@@ -98,22 +99,23 @@ extension MainViewController: MemoryGameProtocol {
     }
     
     func memoryGameDidEnd(_ game: MemoryGame) {
-        let alertController = UIAlertController(title: "Good Job!", message: "Want to play again?", preferredStyle: .alert)
-        
-        let cancelAction = UIAlertAction(title: "No", style: .cancel) { [weak self] action in
-            self?.collectionView.isHidden = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            let alertController = UIAlertController(title: "Good Job!", message: "Want to play again?", preferredStyle: .alert)
+            
+            let cancelAction = UIAlertAction(title: "No", style: .cancel) { [weak self] action in
+                self?.collectionView.isHidden = true
+            }
+            
+            let playAgainAction = UIAlertAction(title: "Yes", style: .default) { [weak self] action in
+                self?.resetGame()
+            }
+            
+            alertController.addAction(cancelAction)
+            alertController.addAction(playAgainAction)
+            
+            self.present(alertController, animated: true)
+            self.resetGame()
         }
-        
-        let playAgainAction = UIAlertAction(title: "Yes", style: .default) { [weak self] action in
-            self?.collectionView.isHidden = true
-            self?.resetGame()
-        }
-        
-        alertController.addAction(cancelAction)
-        alertController.addAction(playAgainAction)
-        
-        self.present(alertController, animated: true)
-        resetGame()
     }
     
     func memoryGame(_ game: MemoryGame, showCards: [Card]) {
@@ -125,7 +127,7 @@ extension MainViewController: MemoryGameProtocol {
     }
     
     func memoryGame(_ game: MemoryGame, hideCards: [Card]) {
-        for card in cards {
+        for card in hideCards {
             guard let index = game.getIndexForCard(card) else { continue }
             let cell = collectionView.cellForItem(at: IndexPath(item: index, section: 0)) as! CardCell
             cell.showCard(false, animated: true)
@@ -140,11 +142,13 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
     }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        cards.count
+        return cards.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CardCell.cellIdentifier, for: indexPath) as! CardCell
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CardCell.cellIdentifier, for: indexPath) as? CardCell else {
+            return UICollectionViewCell()
+        }
         cell.showCard(false, animated: false)
         
         guard let card = game.getCardAtIndex(indexPath.item) else { return cell }

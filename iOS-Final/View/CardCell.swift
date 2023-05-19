@@ -16,6 +16,7 @@ class CardCell: UICollectionViewCell {
         didSet {
             guard let card = card else { return }
             frontImageView.image = card.image
+            backImageView.backgroundColor = Colors.hiddenCardBackground
             
             frontImageView.layer.cornerRadius = 5.0
             backImageView.layer.cornerRadius = 5.0
