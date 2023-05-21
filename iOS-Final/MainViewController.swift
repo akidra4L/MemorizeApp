@@ -10,7 +10,6 @@ import UIKit
 class MainViewController: UIViewController {
     
     // MARK: - Properties
-    var counter = 0
     var game = MemoryGame()
     var cards: [Card] = []
     let sectionInsets = UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
@@ -31,6 +30,19 @@ class MainViewController: UIViewController {
         return btn
     } ()
     
+    private var startGameLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = Colors.buttonBackground
+        label.textAlignment = .center
+        label.font = .systemFont(ofSize: 28, weight: .bold)
+        label.text = "Welcome to the Game\nto play press 'Play' button"
+        label.numberOfLines = 2
+        return label
+    } ()
+    
+    private var reloadButton = CustomActionButton(icon: "arrow.clockwise.circle")
+    private var shuffleButton = CustomActionButton(icon: "shuffle.circle")
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,6 +56,10 @@ class MainViewController: UIViewController {
         collectionView.delegate = self
         collectionView.isHidden = true
         collectionView.register(CardCell.self, forCellWithReuseIdentifier: CardCell.cellIdentifier)
+        
+        if collectionView.isHidden {
+            startGameLabel.isHidden = false
+        }
         
         getCards()
     }
@@ -75,22 +91,41 @@ class MainViewController: UIViewController {
     // MARK: - Actions
     func setActions() {
         self.playButton.addTarget(self, action: #selector(handlePlayButton), for: .touchUpInside)
+        
+        self.reloadButton.addTarget(self, action: #selector(handleReloadButton), for: .touchUpInside)
+        
+        self.shuffleButton.addTarget(self, action: #selector(handleShuffleButton), for: .touchUpInside)
     }
     
     @objc private func handlePlayButton() {
         collectionView.isHidden = false
-        counter = 0
-        
-        animateCardsFlying()
+        startGameLabel.isHidden = true
+    }
+    
+    @objc private func handleReloadButton() {
+        resetGame()
+    }
+    
+    @objc private func handleShuffleButton() {
+        startGame()
     }
     
     // MARK: - UI
     func setUI() {
         self.view.backgroundColor = Colors.mainBackground
-        [playButton, collectionView].forEach { self.view.addSubview($0) }
+        [startGameLabel, playButton, reloadButton, shuffleButton, collectionView].forEach { self.view.addSubview($0) }
         
-        playButton.anchor(right: self.view.rightAnchor, bottom: self.view.bottomAnchor, left: self.view.leftAnchor, paddingRight: 64, paddingBottom: 44, paddingLeft: 64)
+        playButton.anchor(right: self.view.rightAnchor, bottom: self.view.bottomAnchor, left: self.view.leftAnchor, paddingRight: 90, paddingBottom: 44, paddingLeft: 90)
+        
+        reloadButton.setDimensions(width: 32, height: 32)
+        reloadButton.anchor(right: playButton.leftAnchor, bottom: self.view.bottomAnchor, paddingRight: 32, paddingBottom: 44)
+        
+        shuffleButton.setDimensions(width: 32, height: 32)
+        shuffleButton.anchor(bottom: self.view.bottomAnchor, left: playButton.rightAnchor, paddingBottom: 44, paddingLeft: 32)
+        
         collectionView.anchor(top: self.view.topAnchor, right: self.view.rightAnchor, bottom: playButton.topAnchor, left: self.view.leftAnchor, paddingBottom: 16)
+        
+        startGameLabel.centerInView(in: self.view)
     }
 }
 
@@ -106,6 +141,7 @@ extension MainViewController: MemoryGameProtocol {
             
             let cancelAction = UIAlertAction(title: "No", style: .cancel) { [weak self] action in
                 self?.collectionView.isHidden = true
+                self?.startGameLabel.isHidden = false
             }
             
             let playAgainAction = UIAlertAction(title: "Yes", style: .default) { [weak self] action in

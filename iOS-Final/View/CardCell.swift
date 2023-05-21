@@ -60,7 +60,7 @@ class CardCell: UICollectionViewCell {
     func showCard(_ isShow: Bool, animated: Bool) {
         frontImageView.isHidden = false
         backImageView.isHidden = false
-        isShown = isShow
+        self.isShown = isShow
         if animated {
             if isShow {
                 UIView.transition(from: backImageView,
@@ -82,6 +82,5 @@ class CardCell: UICollectionViewCell {
                 frontImageView.isHidden = true
             }
         }
-
     }
 }
