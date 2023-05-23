@@ -103,11 +103,11 @@ class MainViewController: UIViewController {
     }
     
     @objc private func handleReloadButton() {
-        resetGame()
+        reloadGame()
     }
     
     @objc private func handleShuffleButton() {
-        startGame()
+        shuffleGame()
     }
     
     // MARK: - UI
@@ -126,6 +126,36 @@ class MainViewController: UIViewController {
         collectionView.anchor(top: self.view.topAnchor, right: self.view.rightAnchor, bottom: playButton.topAnchor, left: self.view.leftAnchor, paddingBottom: 16)
         
         startGameLabel.centerInView(in: self.view)
+    }
+    
+    func shuffleGame() {
+        UIView.animate(withDuration: 0.5, animations: { [weak self] in
+            guard let self = self else { return }
+            self.collectionView.alpha = 0.0
+        }) { [weak self] (_) in
+            guard let self = self else { return }
+            cards = game.startNewGame(cardsArray: self.cards)
+            collectionView.reloadData()
+            
+            UIView.animate(withDuration: 0.3, animations: {
+                self.collectionView.alpha = 1.0
+            })
+        }
+    }
+
+    func reloadGame() {
+        UIView.animate(withDuration: 0.5, animations: { [weak self] in
+            guard let self = self else { return }
+            self.collectionView.alpha = 0.0
+        }) { [weak self] (_) in
+            guard let self = self else { return }
+            cards = game.startNewGame(cardsArray: self.cards)
+            collectionView.reloadData()
+            
+            UIView.animate(withDuration: 0.8, animations: {
+                self.collectionView.alpha = 1.0
+            })
+        }
     }
 }
 
